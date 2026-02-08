@@ -1,106 +1,116 @@
 <div class="chat-layout">
-  
   <header class="chat-header">
     <div class="left">
-      <a routerLink="/" class="back-btn">← {{ isSwahili ? 'Nyuma' : 'Back' }}</a>
+      <a routerLink="/" class="back-btn">
+        <span class="material-icons">arrow_back</span> 
+        <span class="back-text">Back</span>
+      </a>
       
-      <div class="header-content">
-        <h2>SheriaSense</h2>
-        
-        <div class="country-switcher">
-          <button *ngFor="let c of countries" (click)="switchCountry(c.name)" [class.active]="geminiService.selectedCountry === c.name">
-            <img [src]="c.flag" alt="{{ c.name }}">
-          </button>
-        </div>
-
-        <div class="lang-toggle">
-          <label class="switch">
-            <input type="checkbox" [(ngModel)]="isSwahili" (change)="updateUI()">
-            <span class="slider round"></span>
-          </label>
-          <span class="lang-label">Swahili</span>
-        </div>
+      <div class="country-switcher">
+        <button [class.active]="geminiService.selectedCountry === 'Kenya'" (click)="switchCountry('Kenya')">
+          <img src="https://flagcdn.com/w40/ke.png" alt="Kenya">
+          <span>Kenya</span>
+        </button>
+        <button [class.active]="geminiService.selectedCountry === 'Uganda'" (click)="switchCountry('Uganda')">
+          <img src="https://flagcdn.com/w40/ug.png" alt="Uganda">
+          <span>Uganda</span>
+        </button>
+        <button [class.active]="geminiService.selectedCountry === 'Tanzania'" (click)="switchCountry('Tanzania')">
+          <img src="https://flagcdn.com/w40/tz.png" alt="Tanzania">
+          <span>Tanzania</span>
+        </button>
       </div>
+    </div>
+
+    <div class="lang-toggle">
+      <span class="lang-code" [class.active]="!isSwahili">EN</span>
+      <label class="switch">
+        <input type="checkbox" [(ngModel)]="isSwahili" (change)="updateUI()">
+        <span class="slider"></span>
+      </label>
+      <span class="lang-code" [class.active]="isSwahili">SW</span>
     </div>
   </header>
 
   <div *ngIf="showSafetyWarning" class="safety-banner">
-    ⚠️ <strong>{{ isSwahili ? 'Dharura?' : 'Emergency?' }}</strong> {{ isSwahili ? 'Ikiwa uko hatarini, piga 999.' : 'If in immediate danger, call 999.' }}
+    ⚠️ <strong>Emergency Detected:</strong> If you are in immediate danger, please call <strong>999</strong> or the Gender Violence Helpline <strong>1195</strong>.
   </div>
 
   <div class="messages-container" #scrollContainer>
-    <div *ngFor="let msg of chatHistory; let i = index" [class]="'message-row ' + msg.role">
+    <div *ngFor="let msg of chatHistory; let i = index" 
+         class="message-row" 
+         [ngClass]="msg.role">
+      
       <div class="avatar">
-        <ng-container *ngIf="msg.role === 'ai'; else userAvatar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="16" r="2"></circle><path d="M12 11V7"></path><rect x="10" y="3" width="4" height="4"></rect></svg>
-        </ng-container>
-        <ng-template #userAvatar>👤</ng-template>
+        {{ msg.role === 'ai' ? '⚖️' : '👤' }}
       </div>
-
+      
       <div class="content-wrapper">
         <div *ngIf="msg.attachment" class="attachment-preview">
-          <span class="file-icon">📄</span> {{ isSwahili ? 'Hati' : 'Attached Doc' }}
+           <span class="material-icons" style="font-size: 14px;">attach_file</span> Document Attached
         </div>
         
         <div class="bubble" [innerHTML]="formatText(msg.text)"></div>
         
-        <div *ngIf="msg.role === 'ai'" class="message-actions">
-          <button 
-            (click)="speak(msg.text, i)" 
-            [class.active-speak]="speakingMessageIndex === i"
-            [title]="isSwahili ? 'Soma' : 'Read Aloud'">
-            {{ speakingMessageIndex === i ? (isSwahili ? '⏹ Acha' : '⏹ Stop') : (isSwahili ? '🔊 Skiza' : '🔊 Listen') }}
+        <div class="message-actions" *ngIf="msg.role === 'ai'">
+          <button (click)="speak(msg.text, i)" [class.active-speak]="speakingMessageIndex === i">
+            <span class="material-icons">{{ speakingMessageIndex === i ? 'stop' : 'volume_up' }}</span>
+            {{ speakingMessageIndex === i ? 'Stop' : 'Listen' }}
           </button>
-
-          <button (click)="share(msg.text)" [title]="isSwahili ? 'Shiriki' : 'Share'">
-            {{ isSwahili ? 'Shiriki ↗' : 'Share ↗' }}
+          <button (click)="share(msg.text)">
+            <span class="material-icons">share</span> Share
           </button>
         </div>
       </div>
     </div>
 
     <div *ngIf="isLoading" class="message-row ai">
-      <div class="avatar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#333" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="16" r="2"></circle><path d="M12 11V7"></path><rect x="10" y="3" width="4" height="4"></rect></svg></div>
+      <div class="avatar">⚖️</div>
       <div class="bubble loading">
-        <span *ngIf="!isAnalyzing">●●●</span>
-        <span *ngIf="isAnalyzing">🔍 {{ isSwahili ? 'Inachambua...' : 'Analyzing...' }}</span>
+        {{ isAnalyzing ? '🔍 Analyzing document...' : 'Thinking...' }}
       </div>
     </div>
   </div>
 
-  <div class="input-area">
-    <div class="chips-scroll" *ngIf="!isLoading && chatHistory.length < 3">
-      <button *ngFor="let chip of suggestionChips" (click)="useChip(chip.text)" class="chip">{{ chip.label }}</button>
+  <footer class="input-area">
+    <div class="chips-scroll" *ngIf="chatHistory.length < 2">
+      <div class="chip" *ngFor="let chip of suggestionChips" (click)="useChip(chip.text)">
+        {{ chip.label }}
+      </div>
     </div>
 
     <div *ngIf="selectedFile" class="file-preview-bar">
-      <div class="file-info"><span class="icon">📄</span><span class="name">{{ selectedFile.name }}</span></div>
-      <button (click)="clearFile()" class="remove-btn">×</button>
+      <div class="file-info">
+        <span class="material-icons">description</span>
+        <span class="name">{{ selectedFile.name }}</span>
+      </div>
+      <button (click)="clearFile()" class="remove-btn">
+        <span class="material-icons">close</span>
+      </button>
     </div>
 
     <div class="input-wrapper">
-      <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*,application/pdf" style="display: none;">
-      
-      <button class="attach-btn" (click)="fileInput.click()" [title]="isSwahili ? 'Ambatanisha' : 'Attach'" [disabled]="isLoading">📎</button>
+      <label class="attach-btn" title="Upload Document">
+        <input type="file" (change)="onFileSelected($event)" hidden accept="image/*,application/pdf">
+        <span class="material-icons">attach_file</span>
+      </label>
 
-      <input 
-        [(ngModel)]="userInput" 
-        (keyup.enter)="sendMessage()"
-        [placeholder]="isListening ? (isSwahili ? 'Inasikiliza...' : 'Listening...') : (selectedFile ? (isSwahili ? 'Uliza...' : 'Ask about this doc...') : (isSwahili ? 'Andika au ongea...' : 'Type or speak...'))" 
-        [disabled]="isLoading"
-      />
-      
-      <button class="mic-btn" (click)="toggleMic()" [class.listening]="isListening" [title]="isSwahili ? 'Ongea' : 'Speak'">
-        {{ isListening ? '⏹' : '🎙️' }}
+      <input [(ngModel)]="userInput" 
+             (keyup.enter)="sendMessage()" 
+             [placeholder]="isListening ? 'Listening...' : (isSwahili ? 'Andika au sema...' : 'Type or speak...')"
+             [disabled]="isLoading">
+
+      <button class="mic-btn" (click)="toggleMic()" [class.listening]="isListening" title="Voice Input">
+        <span class="material-icons">{{ isListening ? 'mic_off' : 'mic' }}</span>
       </button>
 
-      <button (click)="sendMessage()" [disabled]="(!userInput.trim() && !selectedFile) || isLoading">
-        {{ isSwahili ? 'Tuma' : 'Send' }}
+      <button class="send-btn" (click)="sendMessage()" [disabled]="isLoading || (!userInput.trim() && !selectedFile)">
+        <span class="material-icons">send</span>
       </button>
     </div>
-    <p class="disclaimer">
-      {{ isSwahili ? 'Thibitisha na chanzo rasmi.' : 'Verify with an official source.' }}
-    </p>
-  </div>
 
+    <div class="disclaimer">
+      Verify with an official source.
+    </div>
+  </footer>
 </div>

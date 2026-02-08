@@ -221,7 +221,7 @@
 
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 1024px) {
-  :host { height: auto; overflow-y: auto; }
+  :host { height: auto; overflow-y: visible; /* Changed from auto to visible to let body scroll */ }
   
   .home-container {
     grid-template-columns: 1fr;
