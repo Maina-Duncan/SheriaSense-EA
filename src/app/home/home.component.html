@@ -1,0 +1,62 @@
+<div class="home-container">
+  
+  <div class="left-section">
+    <h1>Know your rights, clearly.</h1>
+    <p class="description">
+      Sheria Sense helps people in Kenya, Uganda, and Tanzania understand legal processes and documents. 
+      Legal information only, not legal advice.
+    </p>
+
+    <div class="country-wrapper">
+      <button *ngFor="let country of countries" 
+              (click)="selectCountry(country)"
+              [class.active]="geminiService.selectedCountry === country.name">
+        <img [src]="country.image" class="flag-icon" alt="{{ country.name }}">
+        <span class="name">{{ country.name }}</span>
+      </button>
+    </div>
+
+    <p class="status-text">
+      Selected: <strong>{{ geminiService.selectedCountry }}</strong> — {{ geminiService.currentMotto }}
+    </p>
+
+    <div class="action-buttons">
+      
+      <button class="btn primary" routerLink="/chat">Start Chat</button>
+      
+      <button class="btn secondary" routerLink="/chat" [queryParams]="{ mode: 'analyze' }">
+        Analyze a Document
+      </button>
+      
+      <button class="btn secondary" routerLink="/chat" [queryParams]="{ mode: 'guide' }">
+        Step-by-step Guide
+      </button>
+
+    </div>
+
+    <div class="focus-indicator">
+      Current country focus: <strong>{{ geminiService.selectedCountry }}</strong>
+    </div>
+  </div>
+
+  <div class="right-section">
+    <div class="info-card">
+      <h3>What you can do</h3>
+      <ul>
+        <li>Ask about rights, contracts, disputes, and procedures</li>
+        <li>Upload a letter or contract and get risks explained</li>
+        <li>Get step-by-step guidance for common legal processes</li>
+      </ul>
+      <div class="divider"></div>
+      <p class="disclaimer">
+        Always verify with official sources or a qualified advocate when needed.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <p>Legal information only, not legal advice.</p>
+  <p class="credits">Built with Gemini API + Firebase + Angular</p>
+</footer>

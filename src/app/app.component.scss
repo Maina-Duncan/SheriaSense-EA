@@ -1,0 +1,6 @@
+/* Global Styles */
+:host { font-family: 'Inter', sans-serif; display: block; min-height: 100vh; background: #f9fafb; }
+.navbar { display: flex; justify-content: space-between; padding: 1rem 5%; background: white; border-bottom: 1px solid #eee; align-items: center; }
+.logo { font-weight: 800; font-size: 1.2rem; color: #111; }
+.nav-links a { margin-left: 2rem; text-decoration: none; color: #555; font-weight: 500; }
+.nav-links a:hover { color: #000; }
