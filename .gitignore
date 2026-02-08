@@ -42,3 +42,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+# Security: Ignore environment files with API keys
+src/environments/environment.ts
+src/environments/environment.prod.ts
